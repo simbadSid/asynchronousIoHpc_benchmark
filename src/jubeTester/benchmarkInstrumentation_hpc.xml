@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jube>
+
+	<parameterset name="parameter">
+		<!-- TODO REMOVE WHEN FILE SUBSTITUTION WILL BE IMPLEMENTED -->
+		<parameter	name="HACK_PATH">							../../../../../							</parameter>
+		<!-- TODO END REMOVE WHEN FILE SUBSTITUTION WILL BE IMPLEMENTED -->
+		<parameter	name="fileOutput">							../resource/ioFiles/defaultJube			</parameter>
+		<parameter	name="filePathStatistic">					../resource/statistic/					</parameter>
+		<parameter	name="CubeDumpResFile">						../resource/tmpCubeDumpFile				</parameter>
+		<parameter	name="fileScriptPlot">						./srcPlot/mainPlot.py					</parameter>
+		<parameter	name="fileScriptParseCubeDumpRes">			./srcPlot/mainParseCubeDumpResFile.py	</parameter>
+		<parameter	name="nbProcessor">							2										</parameter>
+		<parameter	name="cube_computeAndSaveLoop_id">			12										</parameter>
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">11										</parameter>
+	</parameterset>
+
+
+	<parameterset name="parameter_benchmarkResultFile">
+		<parameter	name="nbCharOutput"		type="int">			500000000								</parameter>
+		<parameter	name="nbIteration"		type="int">			40										</parameter>
+		<parameter	name="fileExec"			type="str">			./posixGlibcIO_sleep,
+																./posixGlibcAIO_sleep					</parameter>
+		<parameter	name="nbTry">								2										</parameter>
+		<parameter	name="benchmarkResultFile" type="str">
+			${filePathStatistic}/${fileExec}_${nbCharOutput}Bytes_${nbIteration}Iteration.data
+		</parameter>
+	</parameterset>
+
+	<parameterset name="parameter_variableDim">
+		<parameter	name="computeTime"		type="float">		0.00000001, 0.0000001, 0.0000002, 0.0000004, 0.0000006, 0.0000008, 
+																0.000001, 0.000002, 0.000004, 0.000006, 0.000008,
+																0.00001,
+																0.00003, 0.00006, 0.00008, 0.0001, 0.0003, 0.0006, 0.0008,
+																1, 2, 3, 4, 5							</parameter>
+		<parameter	name="nbIoDevice">							1, 2, 3, 4								</parameter>
+	</parameterset>
+
+
+	<!-- Operation -->
+	<!-- Initializes all the results files: name = $HACK_PATH${filePathStatistic}/${fileExec}_${computeTime}.data -->
+	<!-- Needs to be executed before any other operation -->
+	<!-- Needs to be updated when we change the parameterset "parameter_benchmarkResultFile" -->
+	<benchmark name="init_outputFile" outpath="bench_run">
+		<comment>Creates and writes the header of the data files that will contain the benchmark pattern assessment results</comment>
+		<step name="init_outputFile">
+			<use>parameter						</use>
+			<use>parameter_benchmarkResultFile	</use>
+			<do>echo											>  $HACK_PATH${benchmarkResultFile}	</do>
+ 			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Benchmark pattern info:"					>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo ${fileExec}								>> $HACK_PATH${benchmarkResultFile}	</do>
+
+ 			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Fixed dim and values:"					>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "nbCharOutput, "${nbCharOutput}" ,nbIteration, "${nbIteration}>> $HACK_PATH${benchmarkResultFile}	</do>
+
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Variable dim:"							>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "computeTime,nbIoDevice"		 			>> $HACK_PATH${benchmarkResultFile}	</do>
+<!-- TODO add the dimension (+ in the python mainPlot.py) -->
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Result dim:"								>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "Iterations, Iteration + wait"				>> $HACK_PATH${benchmarkResultFile}	</do>
+
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Number of tries:"						>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+ 			<do>echo ${nbTry}									>> $HACK_PATH${benchmarkResultFile}	</do>
+
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Data:"									>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Run the different pattern benchmarks and assess them -->
+	<!-- Needs to be executed after "init_outputFile"-->
+	<benchmark name="run_benchmark" outpath="bench_run">
+		<comment>Run the different pattern benchmarks and assess them</comment>
+		<step name="run_benchmark">
+			<use>parameter</use>
+			<use>parameter_benchmarkResultFile</use>
+			<use>parameter_variableDim</use>
+			<!-- Execute the benchmark pattern and write the parameters (thanks to logger option m) -->
+			<do>	for i in `seq 1 $nbTry`;
+        			do
+						rm -rf  scorep-*;\
+						$HACK_PATH$fileExec	-nbIteration	$nbIteration	\
+									-nbCharOutput	$nbCharOutput			\
+									-computeTime	$computeTime			\
+									-outputFile		$HACK_PATH$fileOutput	\
+									-nbIoDevice		$nbIoDevice				\
+									-nbProcessor	$nbProcessor			\
+									-logger			m						;\
+						rm $HACK_PATH$fileOutput*;	\
+						echo ${computeTime}", "${nbIoDevice} >> $HACK_PATH${benchmarkResultFile}; \
+						cube_dump scorep-*/profile.cubex -m time -z incl -c ${cube_computeAndSaveLoop_id} -c ${cube_computeAndSaveLoopAndWaitEnd_id} > $HACK_PATH${CubeDumpResFile};\
+						python $HACK_PATH${fileScriptParseCubeDumpRes} $HACK_PATH${CubeDumpResFile} ${cube_computeAndSaveLoop_id} ${cube_computeAndSaveLoopAndWaitEnd_id} >> $HACK_PATH${benchmarkResultFile};\
+						rm $HACK_PATH${CubeDumpResFile};
+					done;
+			</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotSurface" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotSurface">
+			<use>parameter						</use>
+			<use>parameter_benchmarkResultFile	</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${benchmarkResultFile} -multipleTry -plotType=surface</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotCloud" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotCloud">
+			<use>parameter						</use>
+			<use>parameter_benchmarkResultFile	</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${benchmarkResultFile} -multipleTry -plotType=cloud</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotBar" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotBar">
+			<use>parameter							</use>
+			<use>parameter_benchmarkResultFile		</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${benchmarkResultFile} -multipleTry -plotType=bar:nbIoDevice:all</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotPoint" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotPoint">
+			<use>parameter							</use>
+			<use>parameter_benchmarkResultFile		</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${benchmarkResultFile} -multipleTry -plotType=point:nbIoDevice:all </do>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${benchmarkResultFile} -multipleTry -plotType=point:nbIoDevice:all -logScaleX -logScaleY</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotBarCompare" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotBarCompare">
+			<use>parameter							</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -multipleTry -plotType=bar:nbIoDevice:all</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotPointCompare" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotPointCompare">
+			<use>parameter							</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -multipleTry -plotType=point:nbIoDevice:all</do>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -multipleTry -plotType=point:nbIoDevice:all -logScaleX -logScaleY</do>
+		</step>
+	</benchmark>
+
+</jube>

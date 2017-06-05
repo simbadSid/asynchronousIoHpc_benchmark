@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jube>
+
+	<parameterset name="parameter">
+		<!-- TODO REMOVE WHEN FILE SUBSTITUTION WILL BE IMPLEMENTED -->
+		<parameter	name="HACK_PATH">							../../../../../							</parameter>
+		<!-- TODO END REMOVE WHEN FILE SUBSTITUTION WILL BE IMPLEMENTED -->
+		<parameter	name="fileOutput">							../resource/ioFiles/defaultJube			</parameter>
+		<parameter	name="filePathStatistic">					../resource/statistic/					</parameter>
+		<parameter	name="CubeDumpResFile">						../resource/tmpCubeDumpFile				</parameter>
+		<parameter	name="fileScriptPlot">						./srcPlot/mainPlot.py					</parameter>
+		<parameter	name="fileScriptParseCubeDumpRes">			./srcPlot/mainParseCubeDumpResFile.py	</parameter>
+		<parameter	name="nbIoDevice">							1										</parameter>
+		<parameter	name="nbProcessor">							2										</parameter>
+		<parameter	name="cube_computeAndSaveLoop_id">			14										</parameter>
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">13										</parameter>
+		<parameter	name="cube_save_id">						16										</parameter>
+	</parameterset>
+
+
+	<parameterset name="parameter_benchmarkResultFile">
+		<parameter	name="fileExec"			type="str">			./posixGlibcIO_sleep					</parameter>
+		<parameter	name="computeTime"		type="float">		0										</parameter>
+		<parameter name="benchmarkResultFile" type="str">
+			${filePathStatistic}/${fileExec}_${computeTime}.data
+		</parameter>
+	</parameterset>
+
+	<parameterset name="parameter_variableDim_nbIteration">
+		<parameter	name="nbIteration"		type="int">			1, 2, 3, 4, 5, 6						</parameter>
+	</parameterset>
+	<parameterset name="parameter_variableDim_nbCharOutput">
+		<parameter	name="nbCharOutput"		type="int">			 500000000								</parameter>
+	</parameterset>
+
+
+	<!-- Operation -->
+	<!-- Initializes all the results files: name = $HACK_PATH${filePathStatistic}/${fileExec}_${computeTime}.data -->
+	<!-- Needs to be executed before any other operation -->
+	<!-- Needs to be updated when we change the parameterset "parameter_benchmarkResultFile" -->
+	<benchmark name="init_outputFile" outpath="bench_run">
+		<comment>Creates and writes the header of the data files that will contain the benchmark pattern assessment results</comment>
+		<step name="init_outputFile">
+			<use>parameter						</use>
+			<use>parameter_benchmarkResultFile	</use>
+			<do>echo											>  $HACK_PATH${benchmarkResultFile}	</do>
+ 			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Benchmark pattern info:"					>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo ${fileExec}								>> $HACK_PATH${benchmarkResultFile}	</do>
+
+ 			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Fixed dim and values:"					>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "computeTime," ${computeTime}	 			>> $HACK_PATH${benchmarkResultFile}	</do>
+
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Variable dim:"							>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "nbIteration,nbCharOutput"					>> $HACK_PATH${benchmarkResultFile}	</do>
+<!-- TODO add the dimension (+ in the python mainPlot.py) -->
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Result dim:"								>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+ 			<do>echo "save time / nb Iteration"		>> $HACK_PATH${benchmarkResultFile}	</do>
+ 
+ 			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "#Data:"									>> $HACK_PATH${benchmarkResultFile}	</do>
+			<do>echo "################################"			>> $HACK_PATH${benchmarkResultFile}	</do>
+		</step>
+	</benchmark>
+
+
+	<!-- Operation -->
+	<!-- Run the different pattern benchmarks and assess them -->
+	<!-- Needs to be executed after "init_outputFile"-->
+	<benchmark name="run_benchmark" outpath="bench_run">
+		<comment>Run the different pattern benchmarks and assess them</comment>
+		<step name="run_benchmark">
+			<use>parameter</use>
+			<use>parameter_benchmarkResultFile</use>
+			<use>parameter_variableDim_nbIteration</use>
+			<use>parameter_variableDim_nbCharOutput</use>
+			<do>rm -rf  scorep-* </do>
+			<!-- Execute the benchmark pattern and write the parameters (thanks to logger option m) -->
+			<do>$HACK_PATH$fileExec	-nbIteration	$nbIteration			\
+									-nbCharOutput	$nbCharOutput			\
+									-computeTime	$computeTime			\
+									-outputFile		$HACK_PATH$fileOutput	\
+									-nbIoDevice		$nbIoDevice				\
+									-nbProcessor	$nbProcessor			\
+									-logger			m
+			</do>
+			<do> rm $HACK_PATH$fileOutput* </do>
+			<do> echo ${nbIteration} ", " ${nbCharOutput} >> $HACK_PATH${benchmarkResultFile} </do>
+			<do>cube_dump scorep-*/profile.cubex -m time -z incl -c ${cube_save_id}	> $HACK_PATH${CubeDumpResFile} </do>
+ 			<do> python $HACK_PATH${fileScriptParseCubeDumpRes} -divide=${nbIteration} $HACK_PATH${CubeDumpResFile} ${cube_save_id} >> $HACK_PATH${benchmarkResultFile} </do>
+			<do> rm $HACK_PATH${CubeDumpResFile} </do>
+			</step>
+	</benchmark>
+
+
+
+	<!-- Operation -->
+	<!-- Run the different pattern benchmarks and assess them -->
+	<!-- Needs to be executed after "init_outputFile"-->
+	<benchmark name="run_benchmark_row" outpath="bench_run">
+		<comment>Run the different pattern benchmarks and assess them</comment>
+		<step name="run_benchmark_row">
+			<use>parameter</use>
+			<use>parameter_benchmarkResultFile</use>
+			<use>parameter_variableDim_nbIteration</use>
+			<use>parameter_variableDim_nbCharOutput</use>
+			<do>rm -rf  scorep-* </do>
+			<!-- Execute the benchmark pattern and write the parameters (thanks to logger option m) -->
+			<do>$HACK_PATH$fileExec	-nbIteration	$nbIteration			\
+									-nbCharOutput	$nbCharOutput			\
+									-computeTime	$computeTime			\
+									-outputFile		$HACK_PATH$fileOutput	\
+									-nbIoDevice		$nbIoDevice				\
+									-nbProcessor	$nbProcessor			\
+									-logger			m
+			</do>
+			<do> rm $HACK_PATH$fileOutput* </do>
+			<do> echo ${nbIteration} ", " ${nbCharOutput} >> $HACK_PATH${benchmarkResultFile} </do>
+			<do>cube_dump scorep-*/profile.cubex -m time -z incl -c ${cube_save_id}	> $HACK_PATH${CubeDumpResFile} </do>
+			<do> python $HACK_PATH${fileScriptParseCubeDumpRes} $HACK_PATH${CubeDumpResFile} ${cube_save_id} >> $HACK_PATH${benchmarkResultFile} </do>
+			<do> rm $HACK_PATH${CubeDumpResFile} </do>
+			</step>
+	</benchmark>
+
+
+
+	<!-- Operation -->
+	<!-- Plot the results of all the benchmark pattern assessments -->
+	<!-- Needs to be executed after "run_benchmark" -->
+	<benchmark name="plotWriteTime" outpath="bench_run">
+		<comment>Plot the results of all the benchmark pattern assessments</comment>
+		<!-- Operation -->
+		<step name="plotWriteTime">
+			<use>parameter							</use>
+			<use>parameter_benchmarkResultFile		</use>
+			<use>parameter_variableDim_nbCharOutput	</use>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${benchmarkResultFile} -plotType=point:nbCharOutput:${nbCharOutput}</do>
+		</step>
+	</benchmark>
+
+</jube>
