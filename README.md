@@ -29,7 +29,7 @@ In order to print all the defined benchmark, one can simply go to the root direc
 
 
 
-## The result printer
+## The result printer (./srcPlot)
 Once the desired test has been succesfully run (see previous command), one can print the result by runing "make plot<pattern name>"
 
 
