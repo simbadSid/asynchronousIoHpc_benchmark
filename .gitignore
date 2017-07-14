@@ -1,0 +1,9 @@
+workDir/.project
+workDir/.pydevproject
+.Rhistory
+workDir/jubeTester/bench_run
+workDir/jubeTester/jube-parse.log
+workDir/srcPlot/*.pyc
+workDir/srcPlot/*/.pyc
+resource/statistic/*
+resource/cubeInput

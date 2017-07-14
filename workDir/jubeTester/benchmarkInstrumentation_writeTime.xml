@@ -12,25 +12,42 @@
 		<parameter	name="fileScriptParseCubeDumpRes">			./srcPlot/mainParseCubeDumpResFile.py	</parameter>
 		<parameter	name="nbIoDevice">							1										</parameter>
 		<parameter	name="nbProcessor">							2										</parameter>
+<!-- HPC JURECA -->
 		<parameter	name="cube_computeAndSaveLoop_id">			14										</parameter>
 		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">13										</parameter>
 		<parameter	name="cube_save_id">						16										</parameter>
+
+<!-- Work statiom -->
+<!--
+		<parameter	name="cube_computeAndSaveLoop_id">			14										</parameter>
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">13										</parameter>
+		<parameter	name="cube_save_id">						16										</parameter>
+-->
+
+<!-- Laptop -->
+<!--
+		<parameter	name="cube_computeAndSaveLoop_id">			17										</parameter>
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">16										</parameter>
+		<parameter	name="cube_save_id">						19										</parameter>
+-->
+
 	</parameterset>
 
 
 	<parameterset name="parameter_benchmarkResultFile">
-		<parameter	name="fileExec"			type="str">			./posixGlibcIO_sleep					</parameter>
-		<parameter	name="computeTime"		type="float">		0										</parameter>
-		<parameter name="benchmarkResultFile" type="str">
+		<parameter	name="fileExec"				type="str">		./posixGlibcIO_sleep					</parameter>
+		<parameter	name="computeTime"			type="float">	0										</parameter>
+		<parameter	name="benchmarkResultFile"	type="str">
 			${filePathStatistic}/${fileExec}_${computeTime}.data
 		</parameter>
 	</parameterset>
 
 	<parameterset name="parameter_variableDim_nbIteration">
-		<parameter	name="nbIteration"		type="int">			1, 2, 3, 4, 5, 6						</parameter>
+		<parameter	name="nbIteration"		type="int">			5, 10, 15, 20, 25, 30					</parameter>
 	</parameterset>
 	<parameterset name="parameter_variableDim_nbCharOutput">
-		<parameter	name="nbCharOutput"		type="int">			 500000000								</parameter>
+		<parameter	name="nbCharOutput"		type="int">			1000000000,
+																 900000000								</parameter>
 	</parameterset>
 
 

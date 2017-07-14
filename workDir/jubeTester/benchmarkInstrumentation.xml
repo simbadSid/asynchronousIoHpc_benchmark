@@ -12,13 +12,26 @@
 		<parameter	name="fileScriptParseCubeDumpRes">			./srcPlot/mainParseCubeDumpResFile.py	</parameter>
 		<parameter	name="nbIoDevice">							1										</parameter>
 		<parameter	name="nbProcessor">							2										</parameter>
-		<parameter	name="cube_computeAndSaveLoop_id">			15										</parameter>
+<!-- HPC JURECA -->
 		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">14										</parameter>
+		<parameter	name="cube_computeAndSaveLoop_id">			15										</parameter>
+
+<!-- Work statiom -->
+<!--
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">17										</parameter>
+		<parameter	name="cube_computeAndSaveLoop_id">			18										</parameter>
+-->
+<!-- Laptop -->
+<!--
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">17										</parameter>
+		<parameter	name="cube_computeAndSaveLoop_id">			18										</parameter>
+-->
+
 	</parameterset>
 
 
 	<parameterset name="parameter_benchmarkResultFile">
-		<parameter	name="nbCharOutput"		type="int">			 100000000								</parameter>
+		<parameter	name="nbCharOutput"		type="int">			950000000								</parameter>
 		<parameter	name="fileExec"			type="str">			./posixGlibcIO_sleep,
 																./posixGlibcAIO_sleep					</parameter>
 		<parameter	name="benchmarkResultFile" type="str">
@@ -27,11 +40,11 @@
 	</parameterset>
 
 	<parameterset name="parameter_variableDim_nbIteration">
-		<parameter	name="nbIteration"		type="int">			1, 20, 30, 40, 50  <!--, 60, 70, 80, 90	 -->	</parameter>
+		<parameter	name="nbIteration"		type="int">			20, 40, 60, 80, 100						</parameter>
 	</parameterset>
 
 	<parameterset name="parameter_variableDim_computeTime">
-		<parameter	name="computeTime"		type="float">		0.0001 <!-- , 1.45, 5 -->							</parameter>
+		<parameter	name="computeTime"		type="float">		1 <!-- , 0.0001, 1.45, 5 -->			</parameter>
 	</parameterset>
 
 
@@ -188,8 +201,8 @@
 		<step name="plotPointCompare">
 			<use>parameter							</use>
 			<use>parameter_variableDim_computeTime</use>
-			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -plotType=point:computeTime:${computeTime}</do>
-			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -plotType=point:computeTime:${computeTime} -logScaleX -logScaleY</do>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -plotType=point:nbCharOutput:all</do>
+			<do> python $HACK_PATH${fileScriptPlot} $HACK_PATH${filePathStatistic}/*.data -plotType=point:nbCharOutput:all -logScaleX -logScaleY</do>
 		</step>
 	</benchmark>
 

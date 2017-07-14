@@ -56,6 +56,7 @@ void Worker::save(char *output, void *fileDescriptorPtr)
 	{
 		LOGGER_error("Error wile writing in the output file", "", 1);
 	}
+	fflush(stdout);
 
 	free(output);
 	#ifdef MEMORY_FOOTPRINT

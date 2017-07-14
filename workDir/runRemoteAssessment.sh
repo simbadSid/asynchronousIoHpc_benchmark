@@ -4,7 +4,9 @@
 
 function localRequest
 {
-	make plotPointCompareHPC
+#	make plotPointCompareHPC
+#make plotWriteTime
+make plotPointCompare
 }
 
 
@@ -13,7 +15,9 @@ function remoteRequest
 	rm ../resource/statistic/*
 
 #	nohup make runAllBenchmarkHPC &
-	make runAllBenchmarkHPC
+#	make runAllBenchmarkHPC
+#make runWriteTimeBenchmark
+make runAllBenchmark
 }
 
 

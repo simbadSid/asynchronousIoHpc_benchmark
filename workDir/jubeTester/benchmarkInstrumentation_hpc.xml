@@ -11,8 +11,8 @@
 		<parameter	name="fileScriptPlot">						./srcPlot/mainPlot.py					</parameter>
 		<parameter	name="fileScriptParseCubeDumpRes">			./srcPlot/mainParseCubeDumpResFile.py	</parameter>
 		<parameter	name="nbProcessor">							2										</parameter>
-		<parameter	name="cube_computeAndSaveLoop_id">			12										</parameter>
-		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">11										</parameter>
+		<parameter	name="cube_computeAndSaveLoopAndWaitEnd_id">13										</parameter>
+		<parameter	name="cube_computeAndSaveLoop_id">			14										</parameter>
 	</parameterset>
 
 
@@ -21,19 +21,29 @@
 		<parameter	name="nbIteration"		type="int">			40										</parameter>
 		<parameter	name="fileExec"			type="str">			./posixGlibcIO_sleep,
 																./posixGlibcAIO_sleep					</parameter>
-		<parameter	name="nbTry">								2										</parameter>
+		<parameter	name="nbTry">								5										</parameter>
 		<parameter	name="benchmarkResultFile" type="str">
 			${filePathStatistic}/${fileExec}_${nbCharOutput}Bytes_${nbIteration}Iteration.data
 		</parameter>
 	</parameterset>
 
 	<parameterset name="parameter_variableDim">
+<!--  Set of test values for a writting time of 0.00001
 		<parameter	name="computeTime"		type="float">		0.00000001, 0.0000001, 0.0000002, 0.0000004, 0.0000006, 0.0000008, 
 																0.000001, 0.000002, 0.000004, 0.000006, 0.000008,
 																0.00001,
-																0.00003, 0.00006, 0.00008, 0.0001, 0.0003, 0.0006, 0.0008,
-																1, 2, 3, 4, 5							</parameter>
-		<parameter	name="nbIoDevice">							1, 2, 3, 4								</parameter>
+																0.00003, 0.00006, 0.00008, 0.0001, 0.0003, 0.0006, 0.0008, 0.001, 0.005, 0.01, 0.005, 0.1, 0.5,
+																1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6							</parameter>
+ -->
+		<parameter	name="computeTime"		type="float">		0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,
+																0.1, 0.2, 0.3, 0.4,
+																0.5, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56,
+																0.57,
+																0.58, 0.59, 0.60, 0.62, 0.64, 0.68, 0.7,
+																0.8, 0.85, 0.9,
+																1, 2, 3, 4, 5						</parameter>
+																
+		<parameter	name="nbIoDevice">							1, 2, 3, 4							</parameter>
 	</parameterset>
 
 
@@ -89,6 +99,7 @@
 			<use>parameter_benchmarkResultFile</use>
 			<use>parameter_variableDim</use>
 			<!-- Execute the benchmark pattern and write the parameters (thanks to logger option m) -->
+			<do>	echo ${computeTime}", "${nbIoDevice} >> $HACK_PATH${benchmarkResultFile} </do>
 			<do>	for i in `seq 1 $nbTry`;
         			do
 						rm -rf  scorep-*;\
@@ -100,7 +111,6 @@
 									-nbProcessor	$nbProcessor			\
 									-logger			m						;\
 						rm $HACK_PATH$fileOutput*;	\
-						echo ${computeTime}", "${nbIoDevice} >> $HACK_PATH${benchmarkResultFile}; \
 						cube_dump scorep-*/profile.cubex -m time -z incl -c ${cube_computeAndSaveLoop_id} -c ${cube_computeAndSaveLoopAndWaitEnd_id} > $HACK_PATH${CubeDumpResFile};\
 						python $HACK_PATH${fileScriptParseCubeDumpRes} $HACK_PATH${CubeDumpResFile} ${cube_computeAndSaveLoop_id} ${cube_computeAndSaveLoopAndWaitEnd_id} >> $HACK_PATH${benchmarkResultFile};\
 						rm $HACK_PATH${CubeDumpResFile};

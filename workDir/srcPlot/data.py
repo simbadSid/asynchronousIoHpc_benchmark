@@ -211,15 +211,16 @@ class Data():
                     loggerError(msg="The result contains corrupted data lines", param=text, exitNow=True)
                 for i in xrange(nbResultDim):
                     value = float(line[i])
+                    print value
                     if (nbTry == 0):
                         if (self._resultNbTry == 1):
                             self._resultDimValue[i].append(value)
                         else:
-                            self._resultDimValue[i].append(value / self._resultNbTry)
+                            self._resultDimValue[i].append(value / float(self._resultNbTry))
                         self._resultDimValueMin[i].append(value)
                         self._resultDimValueMax[i].append(value)
                     else:
-                        self._resultDimValue[i][nbEntry] += value / self._resultNbTry
+                        self._resultDimValue[i][nbEntry] += value / float(self._resultNbTry)
                         if (self._resultDimValueMin[i][nbEntry] > value):
                             self._resultDimValueMin[i][nbEntry] = value
                         if (self._resultDimValueMax[i][nbEntry] < value):

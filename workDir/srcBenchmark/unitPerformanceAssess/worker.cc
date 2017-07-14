@@ -90,9 +90,9 @@ void Worker::work()
 {
 	int i=0;
 
-	SCOREP_USER_REGION_DEFINE( mainWorkLoop )
-	SCOREP_USER_REGION_BEGIN( mainWorkLoop, "Worker::work", SCOREP_USER_REGION_TYPE_COMMON )
-	SCOREP_USER_PARAMETER_INT64("nbIteration", i)
+	//SCOREP_USER_REGION_DEFINE( mainWorkLoop )
+	//SCOREP_USER_REGION_BEGIN( mainWorkLoop, "Worker::work", SCOREP_USER_REGION_TYPE_COMMON )
+	//SCOREP_USER_PARAMETER_INT64("nbIteration", i)
 
 #ifdef MPI_PARADIGM
 	#pragma omp parallel num_threads(this->nbMpiLoopThread)
@@ -108,8 +108,7 @@ void Worker::work()
 #endif
 
 	this->waitWorkerEffectiveIo();
-
-	SCOREP_USER_REGION_END( mainWorkLoop )
+	//SCOREP_USER_REGION_END( mainWorkLoop )
 }
 
 

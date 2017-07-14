@@ -50,7 +50,7 @@ PLOT_TYPE_POINT                     = "point"
 COLOR_DEFAULT                       = 'cyan'
 COLOR_LIST                          = ['green',                'black',                    'red',                               'purple',                               'blue']
 COLOR_CORRESPONDENCE                = ['./posixGlibcIO_sleep', './posixGlibcAIO_sleep',    './posixGlibcAIO_sleep_noSignal',    './posixGlibcIO_sleep_memoryFootprint', './posixGlibcAIO_sleep_memoryFootprint']
-POINT_CORRESPONDENCE                = ['+', 'x', 'o', '<', '^', '*', 'D', 'p', '|', 'H']
+POINT_CORRESPONDENCE                = ['p', 'x', 'o', '<', '^', '*', 'D', 'x', '|', 'H']
 
 RESULT_DIM_TEXT_DEFAULT             = "Time (s)"
 BAR_SIZE                            = 3
@@ -133,14 +133,27 @@ def parsePlotType(plotType, data):
 
     return (plotTypeId, dimProjectionName, dimProjectionListValue)
 
-def projectionPlotHeader(data, dataCompare, dimProjectionName, dimProjectionValue, ax, fig):
-# TODO to plot a separation at important point
-# Plot the model
-    writeTime   = 0.00001
+def plotModel(ax):
+    writeTime   = 1.45
+    n           = 4
+    maxC        = 7
+    ax.plot([0,         writeTime], [n*writeTime, n*writeTime],     "--", color='cyan', label="Theoretical model (C << W)")
+    ax.plot([writeTime, maxC],      [n*writeTime, n*maxC],           "--", color='blue', label="Theoretical model (C >> W)")
+
+
+def plotModel_hpc(ax, nbIoDevice=1):
+    writeTime   = 0.57
     n           = 40
-    nbIoDevice  = dimProjectionValue
-    ax.plot([0,         writeTime], [(n-1)*writeTime/nbIoDevice + writeTime,    (n+1)*writeTime],   "--", color='cyan', label="Theoretical model (C << W)")
-    ax.plot([writeTime, 5],         [(n+1)*writeTime,                           n*5+writeTime],     "--", color='blue', label="Theoretical model (C >> W)") 
+    maxC        = 5
+    ax.plot([0,                     writeTime/nbIoDevice],  [(n-1)*writeTime/nbIoDevice + writeTime,    n*writeTime/nbIoDevice+writeTime],  "--", color='cyan',  label="Theoretical model (C << W)")
+    ax.plot([writeTime/nbIoDevice,  maxC],                  [n*writeTime/nbIoDevice + writeTime,        n*maxC+writeTime],                  "--", color='blue',  label="Theoretical model (C >> W)") 
+    ax.plot([writeTime/nbIoDevice,  writeTime/nbIoDevice],  [0,                                         200],                               "--", color='purple',label="Write time / nb IO devices") 
+
+
+def projectionPlotHeader(data, dataCompare, dimProjectionName, dimProjectionValue, ax, fig):
+# TODO Plot the model
+#    plotModel(ax)
+#    plotModel_hpc(ax, nbIoDevice=dimProjectionValue)
 # TODO END
     plt.title(data.getHeader(left=False) + ": " + str(dimProjectionValue),                  loc='right')
     plt.title(data.getHeader(left=True)  + "Projection on \"" + dimProjectionName +  " \"", loc='left')
@@ -191,10 +204,21 @@ def plotPoint(X, Z, Z_error, fig, ax, X_label, Z_label, legend, barSize, logX, l
 # TODO end to remove
 
 # TODO to remove
-#    if (legendExtra == 'Iterations'):
-#        return
+    if (legendExtra == 'Iterations'):
+        return
 # TODO end to remove
 
+# TODO to remove
+    """
+    average = 0.0
+    nbVal   = 0
+    for val in Z:
+        average += val
+        nbVal   += 1
+    average = average / nbVal
+    ax.plot([X[0], X[len(X)-1]], [average, average], "--", color='red', label="Average value")
+    """
+# TODO end to remove
 
     pointType = POINT_CORRESPONDENCE[pointType]
     if (generateRandomColor):
@@ -343,6 +367,8 @@ if __name__ == "__main__":
         plotData(dataList[0], plotType, logX, logY, allProjectionIn1Frame, resultDimText, multipleTry)
     else:
         for i in xrange(nbFile-1):
+#            print dataList[i].toString()
             for j in range(i+1, nbFile):
                 plotData(dataList[i], plotType, logX, logY, allProjectionIn1Frame, resultDimText, multipleTry, dataCompare=dataList[j])
+#        print dataList[nbFile-1].toString()
     plt.show()

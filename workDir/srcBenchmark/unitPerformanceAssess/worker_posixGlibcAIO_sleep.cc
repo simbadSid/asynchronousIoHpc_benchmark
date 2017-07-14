@@ -19,7 +19,7 @@
 
 
 
-#define NOTIFICATION_SIG 0;//SIGUSR1;
+#define NOTIFICATION_SIG SIGUSR1	//0;
 
 
 // --------------------------------------
