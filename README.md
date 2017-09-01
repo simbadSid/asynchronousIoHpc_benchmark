@@ -14,7 +14,7 @@ This directory contains a list of benchmark pattern.
 Each pattern is implemented in the directory src/unitPerformanceAssess and extends the C++ class "Worker".
 Each implementation has a specific "Compute method".  It also has a specific "save" method that allows to write in a given file (using different AIO implementations).</br>
 A main programs (file src/main.cc) allows to run one of this pattern in a loop after fixing the benchmark parameters (using the command line). </br>
-Each implemented pattern may be generated from the root directory using the commend: "make pattern_<pattern name>"
+Each implemented pattern may be generated from the trunk directory using the commend: "make pattern_<pattern name>"
 Then the pattern may be tested using the command.</br>
 "./pattern_<patter name> [optional parameters]" </br>
 The different parameters may be see by using the option "-help".
@@ -22,10 +22,12 @@ The different parameters may be see by using the option "-help".
 
 
 ## The benchmark pattern instrumentation(./jubeTester)
-The Jube file "jubeTester/benchmarkInstrumentation.xml" runs the different pattern benchmarks previously described and assess them.
-The comand for that is: "jube run benchmarkInstrumentation.xml".</br>
-In order to print all the defined benchmark, one can simply go to the root directory and run the command</br>
-"make run<pattern name>"
+The Jube files "jubeTester/benchmarkInstrumentations.xml" runs the different pattern benchmarks previously described and assess them.
+The comand for that is (from the trunk directory): "make run<pattern name>"</br>
+In order to print all the defined benchmark, one can simply go to the trunk directory and run the command</br>
+"make plot*"</br>
+One might also print the results that have already been archived using the command: </br>
+"make plotFromArchive<pattern name>"</br>
 
 
 
